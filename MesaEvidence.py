@@ -3,7 +3,7 @@ from mesa.space import MultiGrid
 import numpy as np
 import seaborn as sns
 
-
+#Hola Mundo COmo estan
 coordinateStructures = {
     "Buildings": [
         (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (3,11), (3,12),
@@ -39,10 +39,10 @@ class CityModel(mesa.Model):
     def __init__(self, n, width, height, dataStructure ,seed=None):
         super().__init__(seed=seed)
         self.num_Cars = n
-        self.buildingLayer = mesa.space.PropertyLayer("buildingLayer", width, height, default_value=0)
-        self.trafficLightLayer = mesa.space.PropertyLayer("trafficLightLayer", width, height, default_value= 0 )
-        self.parkingLayer = mesa.space.PropertyLayer("parkingLayer", width, height, default_value= 0)
-        self.roundAboutLayer = mesa.space.PropertyLayer("roundAboutLayer", width, height, default_value=0)
+        self.buildingLayer = mesa.space.PropertyLayer("buildingLayer", width, height, default_value = np.float64(0))
+        self.trafficLightLayer = mesa.space.PropertyLayer("trafficLightLayer", width, height, default_value = np.float64(0) )
+        self.parkingLayer = mesa.space.PropertyLayer("parkingLayer", width, height, default_value = np.float64(0))
+        self.roundAboutLayer = mesa.space.PropertyLayer("roundAboutLayer", width, height, default_value = np.float64(0))
 
         self.grid = mesa.space.MultiGrid(width,height,True,(self.buildingLayer,self.trafficLightLayer,self.parkingLayer,self.roundAboutLayer))
 
