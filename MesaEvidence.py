@@ -32,7 +32,29 @@ coordinateStructures = {
     ],
     "Round_Abouts": [
         (14,14), (14,15), (15,14), (15,15), (18,15), (18,16)
+    ],
+
+    "Right":[],
+
+    "Left":[] ,
+
+    "Up":[
+        (1,1), (1,2), (2,1), (2,2), (3,1),(3,2), (4,1), (4,2), (5,1), (5,2), 
+        (6,1),(6,2), (7,1), (7,2), (8,1), (8,2), (9,1),(9,2), (10,1), (10,2),
+        (11,1), (11,2), (12,1), (12,2), (13,1),(13,2), (14,1), (14,2), (15,1), (15,2),
+        (16,1),(16,2), (17,1), (17,2), (18,1), (18,2), (19,1),(19,2), (20,1), (20,2),
+        (21,1), (21,2), (22,1), (22,2), (1,1),(1,2), (2,1), (2,2)
+    ],
+
+    "Down":[
+        (1,23), (1,24), (2,23), (2,24), (3,23),(3,24), (4,23), (4,24), (5,23), (5,24), 
+        (6,23),(6,24), (7,23), (7,24), (8,23), (8,24), (9,23),(9,24), (10,23), (10,24),
+        (11,23), (11,24), (12,23), (12,24), (13,23),(13,24), (14,23), (14,24), (15,23), (15,24),
+        (16,23),(16,24), (17,23), (17,24), (18,23), (18,24), (19,23),(19,24), (20,23), (20,24),
+        (21,23), (21,24), (22,23), (22,24), (23,23),(23,24), (24,23), (24,24)
     ]
+
+    
 }
 
 class CityModel(mesa.Model):
@@ -86,11 +108,17 @@ class CarAgent(mesa.Agent):
         self.destination = destinationPosition
 
     def move(self):
+      #Part numer one to see if the car is parked
+      if self.isParked:
+         return  
       '''
       Possible PSEUDOCODE:
 
       1. Check if car is parked:
         If the car is parked and doesn't need to move we don't advance the movement.
+      
+
+
 
       2. Check for Semaphore near you.
         IF there is and it's green we can continue.
@@ -101,8 +129,31 @@ class CarAgent(mesa.Agent):
       '''
 
     def park(self):
+      #Park implementar 
+      #moore property
+      neighbors = self.model.grid.get_neighbors(self.pos, moore = True, include_center=False, radius = 1)
+      found_parking_spot = False
+
+      for neighbor_pos in neighbors:
+        if not any(isinstance(agent, CarAgent) for agent in self.model.grid.get_cell_list_contents(neighbor_pos)):
+           self.model.grid.move_agent(self, neighbor_pos)
+           self.isParked = True
+           found_parking_spot = True
+           break
+        
+      if not found_parking_spot:
+         radius = 2
+         while not found_parking_spot and radius <= 3:
+            extended_neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=radius)
+            for neighbor_pos in extended_neighbors:
+                if not any(isinstance(agent, CarAgent) for agent in self.model.grid.get_cell_list_contents(neighbor_pos)):
+                    self.model.grid.move_agent(self, neighbor_pos)
+                    self.isParked = True
+                    found_parking_spot = True
+                    break
+            radius += 1
       '''
-      Would only change the variables property.
+      Would only change the variables property. Implemented the logic behind the neighbors
       '''
 
     def step(self):
@@ -126,8 +177,10 @@ class TrafficLightAgent(mesa.Agent):
 
     def change_light(self):
       if self.state:
-        self.state = False
+        self.state = False 
         #Modify the property grid
+
+        self.model.grid.place_agent(self, self.position)
       else:
         self.state = True
 
